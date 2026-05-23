@@ -4,6 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fergana Soft — Raqamli yechimlar markazi</title>
+<meta name="description" content="Fergana Soft — Farg'ona shahridagi mustaqil studiya. Web platformalar, mobil ilovalar, MVP va dizayn xizmatlari. Startaplar uchun texnologik hamkor.">
+<meta name="keywords" content="Fergana Soft, web sayt, mobil ilova, MVP, startup, dizayn, Farg'ona, O'zbekiston, dasturchi">
+<meta name="author" content="Fergana Soft">
+<meta name="theme-color" content="#c6ff3d">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Fergana Soft — Raqamli yechimlar markazi">
+<meta property="og:description" content="Web platformalar, mobil ilovalar, MVP va dizayn xizmatlari. Farg'ona, O'zbekiston.">
+<meta property="og:locale" content="uz_UZ">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fergana Soft">
+<meta name="twitter:description" content="Web, mobil va MVP yechimlar studiyasi.">
+
+<!-- Favicon (inline SVG with brand lime dot) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050507'/%3E%3Crect x='8' y='8' width='16' height='16' rx='2' fill='%23c6ff3d'/%3E%3C/svg%3E">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -278,8 +297,9 @@ nav {
   transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
   z-index: -1;
 }
+.nav-cta { transform: translate(var(--mx, 0), var(--my, 0)); }
 .nav-cta:hover::before { transform: translateY(0); }
-.nav-cta:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+.nav-cta:hover { color: var(--ink); transform: translate(calc(var(--mx, 0px) - 2px), calc(var(--my, 0px) - 2px)); box-shadow: 4px 4px 0 var(--ink); }
 
 /* ===== THEME TOGGLE ===== */
 .theme-toggle {
@@ -431,8 +451,9 @@ h1.hero-title {
   transform: translateY(100%);
   transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
 }
+.btn-primary { transform: translate(var(--mx, 0), var(--my, 0)); }
 .btn-primary:hover::before { transform: translateY(0); }
-.btn-primary:hover { transform: translate(-4px, -4px); box-shadow: 8px 8px 0 var(--accent-2); }
+.btn-primary:hover { transform: translate(calc(var(--mx, 0px) - 4px), calc(var(--my, 0px) - 4px)); box-shadow: 8px 8px 0 var(--accent-2); }
 .btn-primary:hover svg { transform: translateX(8px) rotate(-45deg); }
 
 .btn-secondary {
@@ -546,6 +567,7 @@ h1.hero-title {
 
 /* ===== SECTION COMMONS ===== */
 section { position: relative; z-index: 3; }
+section[id] { scroll-margin-top: 90px; } /* nav fixed bo'lgani uchun anchor scroll uchun offset */
 
 .section-tag {
   font-family: 'Space Mono', monospace;
@@ -1202,6 +1224,7 @@ section { position: relative; z-index: 3; }
   letter-spacing: 1.5px;
   position: relative;
   overflow: hidden;
+  transform: translate(var(--mx, 0), var(--my, 0));
 }
 .submit-btn::before {
   content: '';
@@ -1258,6 +1281,10 @@ footer {
 @media (max-width: 1024px) {
   body { cursor: auto; }
   .cursor-dot, .cursor-ring { display: none; }
+  .form-input, .form-textarea { cursor: text; }
+  .pill, .submit-btn, .nav-cta, .btn-primary, .btn-secondary,
+  .theme-toggle, .service-card, .startup-list li, .channel,
+  .team-member, .project-card, .nav-links a { cursor: pointer; }
   .hero { grid-template-columns: 1fr; padding: 120px 24px 60px; }
   .terminal { transform: none; animation: none; }
   .services-grid { grid-template-columns: 1fr; }
@@ -1334,7 +1361,7 @@ footer {
       <span class="title-line"><span>aylantiramiz.</span></span>
     </h1>
     <p class="hero-sub">
-      Fergana Soft — bu raqamli mahsulotlar, mobil ilovalar va web platformalar yaratuvchi mustaqil studiya. Biz startaplar va kompaniyalar uchun ishonchli texnologik hamkormiz.
+      Fergana Soft — bu raqamli mahsulotlar, mobil ilovalar va web platformalar yaratuvchi mustaqil studiya. Biz startaplar va kompaniyalar uchun ishonchli texnologik hamkorimiz.
     </p>
     <div class="hero-actions">
       <a href="#contact" class="btn-primary">
@@ -1720,7 +1747,7 @@ footer {
         <img src="assets/muratov-temurbek.jpg" alt="Muratov Temurbek" loading="lazy">
       </div>
       <h3 class="member-name">Muratov Temurbek</h3>
-      <p class="member-role">Full stack dasturchi · 7+ yil</p>
+      <p class="member-role">Software dasturchi · 7+ yil</p>
     </div>
 
     <div class="team-member reveal">
@@ -1729,7 +1756,7 @@ footer {
         <img src="assets/abduxoshimjonov-ahmadjon.jpg" alt="Abduxoshimjonov Ahmadjon" loading="lazy">
       </div>
       <h3 class="member-name">Abduxoshimjonov Ahmadjon</h3>
-      <p class="member-role">Full stack dasturchi · 5+ yil</p>
+      <p class="member-role">Software dasturchi · 5+ yil</p>
     </div>
 
     <div class="team-member reveal">
@@ -1833,7 +1860,7 @@ footer {
           </div>
         </a>
 
-        <a href="#" class="channel reveal">
+        <a href="https://maps.google.com/?q=Farg'ona+Neftchilar+33" target="_blank" rel="noopener" class="channel reveal">
           <div class="channel-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
@@ -1845,31 +1872,31 @@ footer {
       </div>
     </div>
 
-    <div class="contact-form reveal">
+    <form class="contact-form reveal" id="contactForm" novalidate>
       <div class="form-group">
-        <label class="form-label">ISMINGIZ</label>
-        <input type="text" class="form-input" placeholder="Sardor Tursunov">
+        <label class="form-label" for="f-name">ISMINGIZ</label>
+        <input type="text" id="f-name" name="name" class="form-input" placeholder="Sardor Tursunov" required autocomplete="name">
       </div>
       <div class="form-group">
-        <label class="form-label">EMAIL YOKI TELEGRAM</label>
-        <input type="text" class="form-input" placeholder="sardor@example.com">
+        <label class="form-label" for="f-contact">EMAIL YOKI TELEGRAM</label>
+        <input type="text" id="f-contact" name="contact" class="form-input" placeholder="sardor@example.com" required autocomplete="email">
       </div>
       <div class="form-group">
-        <label class="form-label">QANDAY XIZMAT KERAK?</label>
-        <div class="service-pills">
-          <div class="pill" data-pill>Web sayt</div>
-          <div class="pill" data-pill>Mobil ilova</div>
-          <div class="pill" data-pill>MVP</div>
-          <div class="pill" data-pill>Dizayn</div>
-          <div class="pill" data-pill>Boshqa</div>
+        <span class="form-label">QANDAY XIZMAT KERAK?</span>
+        <div class="service-pills" id="servicePills">
+          <button type="button" class="pill" data-pill data-value="web">Web sayt</button>
+          <button type="button" class="pill" data-pill data-value="mobile">Mobil ilova</button>
+          <button type="button" class="pill" data-pill data-value="mvp">MVP</button>
+          <button type="button" class="pill" data-pill data-value="design">Dizayn</button>
+          <button type="button" class="pill" data-pill data-value="other">Boshqa</button>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">LOYIHA HAQIDA QISQACHA</label>
-        <textarea class="form-textarea" placeholder="G'oyangizni, muddatingizni va byudjetingizni yozing..."></textarea>
+        <label class="form-label" for="f-message">LOYIHA HAQIDA QISQACHA</label>
+        <textarea id="f-message" name="message" class="form-textarea" placeholder="G'oyangizni, muddatingizni va byudjetingizni yozing..."></textarea>
       </div>
-      <button class="submit-btn" id="submitBtn"><span>SO'ROVNI YUBORISH →</span></button>
-    </div>
+      <button type="submit" class="submit-btn" id="submitBtn"><span>SO'ROVNI YUBORISH →</span></button>
+    </form>
   </div>
 </section>
 
@@ -1881,10 +1908,10 @@ footer {
       FERGANA_SOFT
     </div>
     <div class="footer-social">
-      <a href="#">Telegram</a>
-      <a href="#">Instagram</a>
-      <a href="#">LinkedIn</a>
-      <a href="#">GitHub</a>
+      <a href="https://t.me/ferganasoft" target="_blank" rel="noopener">Telegram</a>
+      <a href="https://instagram.com/ferganasoft" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://linkedin.com/company/ferganasoft" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/ferganasoft" target="_blank" rel="noopener">GitHub</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -2027,13 +2054,25 @@ function animateBg() {
 }
 animateBg();
 
-/* ===== SCROLL PROGRESS ===== */
+/* ===== SCROLL: progress + parallax (rAF-throttled) ===== */
 const scrollProgress = document.getElementById('scrollProgress');
-window.addEventListener('scroll', () => {
+let scrollTicking = false;
+function onScroll() {
   const total = document.documentElement.scrollHeight - window.innerHeight;
-  const pct = (window.scrollY / total) * 100;
-  scrollProgress.style.width = pct + '%';
-});
+  const y = window.scrollY;
+  scrollProgress.style.width = ((y / total) * 100) + '%';
+  if (y < window.innerHeight) {
+    if (heroTitleEl) heroTitleEl.style.transform = `translateY(${y * 0.15}px)`;
+    if (terminalWrapEl) terminalWrapEl.style.transform = `translateY(${y * 0.08}px)`;
+  }
+  scrollTicking = false;
+}
+window.addEventListener('scroll', () => {
+  if (!scrollTicking) {
+    requestAnimationFrame(onScroll);
+    scrollTicking = true;
+  }
+}, { passive: true });
 
 /* ===== REVEAL ON SCROLL ===== */
 const observer = new IntersectionObserver((entries) => {
@@ -2111,33 +2150,40 @@ document.querySelectorAll('.service-card').forEach(card => {
   });
 });
 
-/* PARALLAX HERO (subtle) */
-const heroTitle = document.querySelector('.hero-title');
-const terminalWrap = document.querySelector('.terminal-wrap');
-window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  if (y < window.innerHeight) {
-    if (heroTitle) heroTitle.style.transform = `translateY(${y * 0.15}px)`;
-    if (terminalWrap) terminalWrap.style.transform = `translateY(${y * 0.08}px)`;
-  }
-});
+/* hero parallax elements — used by throttled onScroll above */
+const heroTitleEl = document.querySelector('.hero-title');
+const terminalWrapEl = document.querySelector('.terminal-wrap');
 
 /* PILLS TOGGLE */
 document.querySelectorAll('[data-pill]').forEach(pill => {
   pill.addEventListener('click', () => pill.classList.toggle('active'));
 });
 
-/* SUBMIT FEEDBACK */
-document.getElementById('submitBtn').addEventListener('click', (e) => {
+/* FORM SUBMIT (front-end only, no backend) */
+document.getElementById('contactForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const btn = e.target.closest('button');
+  const form = e.target;
+  const btn = form.querySelector('#submitBtn');
   const span = btn.querySelector('span');
+  const name = form.name.value.trim();
+  const contact = form.contact.value.trim();
+  if (!name || !contact) {
+    span.textContent = '⚠ ISM VA ALOQA MA\'LUMOTI KIRITING';
+    btn.style.background = 'var(--accent-2)';
+    setTimeout(() => {
+      span.textContent = 'SO\'ROVNI YUBORISH →';
+      btn.style.background = '';
+    }, 2500);
+    return;
+  }
   const original = span.textContent;
   span.textContent = '✓ YUBORILDI! TEZ ORADA ALOQAGA CHIQAMIZ';
   btn.style.background = 'var(--accent-3)';
   setTimeout(() => {
     span.textContent = original;
     btn.style.background = '';
+    form.reset();
+    form.querySelectorAll('.pill.active').forEach(p => p.classList.remove('active'));
   }, 3000);
 });
 
@@ -2152,16 +2198,20 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   });
 });
 
-/* MAGNETIC BUTTONS */
+/* MAGNETIC BUTTONS — set CSS vars so :hover translate can still apply */
 document.querySelectorAll('.btn-primary, .nav-cta, .submit-btn').forEach(btn => {
+  btn.style.setProperty('--mx', '0px');
+  btn.style.setProperty('--my', '0px');
   btn.addEventListener('mousemove', (e) => {
     const rect = btn.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+    const x = (e.clientX - rect.left - rect.width / 2) * 0.15;
+    const y = (e.clientY - rect.top - rect.height / 2) * 0.15;
+    btn.style.setProperty('--mx', x + 'px');
+    btn.style.setProperty('--my', y + 'px');
   });
   btn.addEventListener('mouseleave', () => {
-    btn.style.transform = '';
+    btn.style.setProperty('--mx', '0px');
+    btn.style.setProperty('--my', '0px');
   });
 });
 
