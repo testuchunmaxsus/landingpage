@@ -23,9 +23,20 @@ export default async function handler(req, res) {
 
   const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
   const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+  console.log('Env check:', {
+    hasToken: !!TOKEN,
+    tokenLen: TOKEN ? TOKEN.length : 0,
+    hasChatId: !!CHAT_ID,
+    chatIdLen: CHAT_ID ? CHAT_ID.length : 0,
+    keys: Object.keys(process.env).filter(k => k.startsWith('TELEGRAM')),
+  });
   if (!TOKEN || !CHAT_ID) {
-    console.error('Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID env vars');
-    return res.status(500).json({ error: 'Server config missing' });
+    return res.status(500).json({
+      error: 'Server config missing',
+      hasToken: !!TOKEN,
+      hasChatId: !!CHAT_ID,
+      foundTelegramKeys: Object.keys(process.env).filter(k => k.startsWith('TELEGRAM'))
+    });
   }
 
   const esc = (s) => String(s)
@@ -51,14 +62,14 @@ export default async function handler(req, res) {
         disable_web_page_preview: true
       })
     });
+    const tgBody = await tg.text();
     if (!tg.ok) {
-      const errTxt = await tg.text();
-      console.error('Telegram API error:', errTxt);
-      return res.status(502).json({ error: 'Telegram send failed' });
+      console.error('Telegram API error:', tg.status, tgBody);
+      return res.status(502).json({ error: 'Telegram send failed', status: tg.status, telegram: tgBody });
     }
     return res.status(200).json({ ok: true });
   } catch (e) {
-    console.error('Send error:', e);
-    return res.status(500).json({ error: 'Internal error' });
+    console.error('Send error:', e && e.message, e && e.stack);
+    return res.status(500).json({ error: 'Internal error', detail: String(e && e.message) });
   }
 }
