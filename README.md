@@ -5,7 +5,7 @@ Raqamli yechimlar studiyasi uchun bir sahifali landing.
 ## Tarkib
 
 - `index.html` — to'liq sahifa (HTML + CSS + JS bitta faylda)
-- `public/` — jamoa a'zolarining fotosuratlari
+- `assets/` — jamoa a'zolarining fotosuratlari
 
 ## Texnologiyalar
 
