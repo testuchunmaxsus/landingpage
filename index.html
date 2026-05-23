@@ -2197,7 +2197,9 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, contact, services, message })
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const responseBody = await res.text();
+    console.log('[/api/contact]', res.status, responseBody);
+    if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + responseBody);
 
     span.textContent = '✓ YUBORILDI! TEZ ORADA ALOQAGA CHIQAMIZ';
     btn.style.background = 'var(--accent-3)';
