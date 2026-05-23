@@ -2159,32 +2159,59 @@ document.querySelectorAll('[data-pill]').forEach(pill => {
   pill.addEventListener('click', () => pill.classList.toggle('active'));
 });
 
-/* FORM SUBMIT (front-end only, no backend) */
-document.getElementById('contactForm').addEventListener('submit', (e) => {
+/* FORM SUBMIT → /api/contact → Telegram */
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
   const btn = form.querySelector('#submitBtn');
   const span = btn.querySelector('span');
+  const ORIGINAL = "SO'ROVNI YUBORISH →";
+
   const name = form.name.value.trim();
   const contact = form.contact.value.trim();
-  if (!name || !contact) {
-    span.textContent = '⚠ ISM VA ALOQA MA\'LUMOTI KIRITING';
-    btn.style.background = 'var(--accent-2)';
+  const message = form.message.value.trim();
+  const services = [...form.querySelectorAll('.pill.active')]
+    .map(p => p.dataset.value).join(', ');
+
+  const flash = (text, bg, ms = 2500) => {
+    span.textContent = text;
+    btn.style.background = bg;
     setTimeout(() => {
-      span.textContent = 'SO\'ROVNI YUBORISH →';
+      span.textContent = ORIGINAL;
       btn.style.background = '';
-    }, 2500);
+      btn.disabled = false;
+    }, ms);
+  };
+
+  if (!name || !contact) {
+    flash("⚠ ISM VA ALOQA MA'LUMOTI KIRITING", 'var(--accent-2)');
     return;
   }
-  const original = span.textContent;
-  span.textContent = '✓ YUBORILDI! TEZ ORADA ALOQAGA CHIQAMIZ';
-  btn.style.background = 'var(--accent-3)';
-  setTimeout(() => {
-    span.textContent = original;
-    btn.style.background = '';
-    form.reset();
-    form.querySelectorAll('.pill.active').forEach(p => p.classList.remove('active'));
-  }, 3000);
+
+  btn.disabled = true;
+  span.textContent = '⏳ YUBORILMOQDA...';
+
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, contact, services, message })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    span.textContent = '✓ YUBORILDI! TEZ ORADA ALOQAGA CHIQAMIZ';
+    btn.style.background = 'var(--accent-3)';
+    setTimeout(() => {
+      span.textContent = ORIGINAL;
+      btn.style.background = '';
+      btn.disabled = false;
+      form.reset();
+      form.querySelectorAll('.pill.active').forEach(p => p.classList.remove('active'));
+    }, 3000);
+  } catch (err) {
+    console.error(err);
+    flash('✗ XATO! QAYTA URUNING', 'var(--accent-2)', 3000);
+  }
 });
 
 /* SMOOTH SCROLL */
