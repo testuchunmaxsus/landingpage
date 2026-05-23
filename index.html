@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fergana Soft — Raqamli yechimlar markazi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('fs-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+<style>
+:root,
+[data-theme="dark"] {
+  --bg: #050507;
+  --bg-2: #0c0c14;
+  --surface: #13131d;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.15);
+  --ink: #f4f4f5;
+  --muted: #7a7a86;
+  --accent: #c6ff3d;
+  --accent-2: #ff3d5a;
+  --accent-3: #6e7bff;
+  --glow: rgba(198,255,61,0.4);
+  --on-accent: #050507;
+  --grid-line: rgba(255,255,255,0.025);
+  --particle-rgb: 198, 255, 61;
+  --nav-bg: rgba(5,5,7,0.6);
+  --shadow-color: rgba(0,0,0,0.7);
+  --noise-opacity: 0.05;
+}
+
+[data-theme="light"] {
+  --bg: #f5f5f0;
+  --bg-2: #ebebe3;
+  --surface: #ffffff;
+  --line: rgba(0,0,0,0.08);
+  --line-strong: rgba(0,0,0,0.18);
+  --ink: #0a0a14;
+  --muted: #6b6b76;
+  --accent: #4a7a00;
+  --accent-2: #d11236;
+  --accent-3: #3a4fdf;
+  --glow: rgba(74,122,0,0.35);
+  --on-accent: #f5f5f0;
+  --grid-line: rgba(0,0,0,0.05);
+  --particle-rgb: 74, 122, 0;
+  --nav-bg: rgba(245,245,240,0.75);
+  --shadow-color: rgba(0,0,0,0.12);
+  --noise-opacity: 0.025;
+}
+
+/* Smooth theme switch */
+body.theming-transition,
+body.theming-transition *,
+body.theming-transition *::before,
+body.theming-transition *::after {
+  transition: background-color 0.35s ease, color 0.35s ease,
+              border-color 0.35s ease, fill 0.35s ease, stroke 0.35s ease,
+              box-shadow 0.35s ease !important;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Fraunces', serif;
+  overflow-x: hidden;
+  line-height: 1.5;
+  cursor: none;
+}
+
+/* ===== CUSTOM CURSOR ===== */
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+.cursor-dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  transition: width 0.2s, height 0.2s, background 0.2s;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid var(--accent);
+  transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+  mix-blend-mode: difference;
+}
+.cursor-ring.hover { width: 80px; height: 80px; border-color: var(--accent-2); background: rgba(255,61,90,0.1); }
+.cursor-dot.hover { width: 0; height: 0; }
+
+/* ===== ANIMATED CANVAS BG ===== */
+#bgCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 1;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* Scroll progress bar */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  z-index: 200;
+  width: 0%;
+  box-shadow: 0 0 10px var(--glow);
+}
+
+/* ===== LOADER ===== */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  transition: opacity 0.6s, visibility 0.6s;
+}
+.loader.gone { opacity: 0; visibility: hidden; }
+.loader-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 4px;
+}
+.loader-bar {
+  width: 240px;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.loader-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  animation: loaderFill 1.6s ease-in-out forwards;
+  box-shadow: 0 0 10px var(--accent);
+}
+@keyframes loaderFill { 0% { width: 0; } 100% { width: 100%; } }
+.loader-count {
+  font-family: 'Fraunces', serif;
+  font-size: 72px;
+  font-weight: 300;
+  color: var(--ink);
+  letter-spacing: -0.04em;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 24px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(20px);
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--line);
+  transform: translateY(-100%);
+  animation: slideDown 0.8s 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slideDown { to { transform: translateY(0); } }
+
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+.logo-dot {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 12px var(--accent);
+}
+.logo-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  animation: ringPulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes ringPulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+.nav-links { display: flex; gap: 36px; list-style: none; font-family: 'Space Mono', monospace; font-size: 13px; }
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+.nav-links a span {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.nav-links a::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 100%;
+  color: var(--accent);
+  transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.nav-links a:hover span { transform: translateY(-100%); }
+.nav-links a:hover::after { transform: translateY(-100%); }
+
+.nav-cta {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  padding: 12px 22px;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  cursor: none;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.nav-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-2);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+  z-index: -1;
+}
+.nav-cta:hover::before { transform: translateY(0); }
+.nav-cta:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, color 0.3s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-right: 14px;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: rotate(180deg);
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-theme="light"] .theme-toggle .icon-sun { opacity: 0; transform: rotate(90deg) scale(0.4); }
+[data-theme="light"] .theme-toggle .icon-moon { opacity: 1; transform: rotate(0) scale(1); }
+.theme-toggle .icon-sun { opacity: 1; transform: rotate(0) scale(1); }
+.theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.4); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  padding: 140px 48px 80px;
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.hero-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: 2px;
+  opacity: 0;
+  animation: fadeUp 1s 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-label::before {
+  content: '';
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  animation: lineGrow 1s 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes lineGrow { to { width: 40px; } }
+
+h1.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(48px, 7.5vw, 128px);
+  line-height: 0.92;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  margin-bottom: 32px;
+}
+.title-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.05em 0;
+}
+.title-line > span {
+  display: inline-block;
+  transform: translateY(120%);
+  animation: titleReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.title-line:nth-child(1) > span { animation-delay: 1.6s; }
+.title-line:nth-child(2) > span { animation-delay: 1.75s; }
+.title-line:nth-child(3) > span { animation-delay: 1.9s; }
+.title-line:nth-child(4) > span { animation-delay: 2.05s; }
+@keyframes titleReveal { to { transform: translateY(0); } }
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 900;
+  background: linear-gradient(180deg, var(--accent) 0%, #8fc724 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+.hero-title .strike {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.hero-sub {
+  font-size: 19px;
+  color: var(--muted);
+  max-width: 540px;
+  margin-bottom: 40px;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeUp 1s 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  opacity: 0;
+  animation: fadeUp 1s 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.btn-primary {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  padding: 20px 36px;
+  background: var(--ink);
+  color: var(--bg);
+  text-decoration: none;
+  font-weight: 700;
+  border: 2px solid var(--ink);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary span { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1); }
+.btn-primary svg { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1); }
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateY(100%);
+  transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.btn-primary:hover::before { transform: translateY(0); }
+.btn-primary:hover { transform: translate(-4px, -4px); box-shadow: 8px 8px 0 var(--accent-2); }
+.btn-primary:hover svg { transform: translateX(8px) rotate(-45deg); }
+
+.btn-secondary {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  padding: 20px 36px;
+  background: transparent;
+  color: var(--ink);
+  text-decoration: none;
+  border: 2px solid var(--line-strong);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-secondary::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.btn-secondary:hover::after { transform: scaleX(1); transform-origin: left; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+/* TERMINAL */
+.terminal-wrap {
+  opacity: 0;
+  animation: fadeUp 1.2s 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  perspective: 1500px;
+}
+.terminal {
+  background: var(--bg-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(198,255,61,0.08), 0 0 60px rgba(198,255,61,0.1);
+  position: relative;
+  transform: rotateY(-8deg) rotateX(3deg);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: terminalFloat 6s ease-in-out infinite;
+}
+@keyframes terminalFloat {
+  0%, 100% { transform: rotateY(-8deg) rotateX(3deg) translateY(0); }
+  50% { transform: rotateY(-6deg) rotateX(2deg) translateY(-10px); }
+}
+.terminal:hover { animation: none; transform: rotateY(0) rotateX(0); }
+
+.terminal-header {
+  background: #14141e;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.term-dot { width: 12px; height: 12px; border-radius: 50%; }
+.term-dot.r { background: #ff5f57; box-shadow: 0 0 8px rgba(255,95,87,0.4); }
+.term-dot.y { background: #febc2e; box-shadow: 0 0 8px rgba(254,188,46,0.4); }
+.term-dot.g { background: #28c840; box-shadow: 0 0 8px rgba(40,200,64,0.4); }
+.term-title { margin-left: auto; color: var(--muted); font-size: 11px; }
+
+.terminal-body { padding: 28px; min-height: 360px; }
+.term-line { margin-bottom: 10px; color: var(--ink); opacity: 0; transform: translateX(-10px); }
+.term-line.show { animation: termLineIn 0.4s ease forwards; }
+@keyframes termLineIn { to { opacity: 1; transform: translateX(0); } }
+.term-prompt { color: var(--accent); }
+.term-comment { color: var(--muted); }
+.term-string { color: #ffd166; }
+.term-key { color: var(--accent-3); }
+.term-success { color: var(--accent); }
+.cursor-blink::after {
+  content: '▊';
+  color: var(--accent);
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ===== MARQUEE STRIP ===== */
+.marquee-strip {
+  padding: 24px 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-top: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+  overflow: hidden;
+  position: relative;
+  z-index: 3;
+  transform: rotate(-2deg);
+  margin: -20px -20px 0;
+  box-shadow: 0 20px 60px rgba(198,255,61,0.2);
+}
+.marquee-strip-content {
+  display: flex;
+  gap: 60px;
+  animation: marqueeMove 30s linear infinite;
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 900;
+  font-style: italic;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+.marquee-strip-content span { display: flex; align-items: center; gap: 60px; }
+.marquee-strip-content svg { width: 28px; height: 28px; }
+@keyframes marqueeMove { to { transform: translateX(-50%); } }
+
+/* ===== SECTION COMMONS ===== */
+section { position: relative; z-index: 3; }
+
+.section-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.section-tag::before {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--accent);
+}
+
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(36px, 5.5vw, 80px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 60px;
+  max-width: 900px;
+}
+.section-title em { font-style: italic; font-weight: 900; }
+
+/* Split-text reveal */
+.split-line { display: block; overflow: hidden; padding: 0.05em 0; }
+.split-line > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.split-line.in > span { transform: translateY(0); }
+
+/* ===== SERVICES ===== */
+.services {
+  padding: 160px 48px;
+  border-top: 1px solid var(--line);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid var(--line);
+  background: var(--line);
+  gap: 1px;
+}
+.service-card {
+  padding: 56px 48px;
+  position: relative;
+  cursor: none;
+  background: var(--bg);
+  overflow: hidden;
+  transition: background 0.5s;
+}
+.service-card::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  left: var(--mx, 50%);
+  top: var(--my, 50%);
+  z-index: 0;
+}
+.service-card:hover::before { opacity: 0.08; }
+.service-card:hover { background: var(--bg-2); }
+.service-card:hover .service-arrow { transform: translate(8px, -8px); color: var(--accent); }
+.service-card:hover .service-icon { transform: rotate(360deg) scale(1.1); color: var(--accent); }
+.service-card > * { position: relative; z-index: 2; }
+
+.service-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  letter-spacing: 1px;
+}
+.service-icon {
+  width: 56px; height: 56px;
+  margin-bottom: 28px;
+  color: var(--muted);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.service-name {
+  font-family: 'Fraunces', serif;
+  font-size: 36px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+.service-desc {
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 420px;
+  margin-bottom: 28px;
+}
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.service-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 6px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  transition: all 0.3s;
+}
+.service-card:hover .service-tag { border-color: var(--accent); color: var(--ink); }
+.service-arrow {
+  position: absolute;
+  top: 56px;
+  right: 48px;
+  font-size: 32px;
+  color: var(--muted);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== PROJECTS ===== */
+.projects {
+  padding: 160px 48px;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  overflow: hidden;
+}
+.projects-marquee {
+  display: flex;
+  gap: 28px;
+  margin: 0 -48px;
+  padding: 32px 48px;
+  mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+.marquee-track {
+  display: flex;
+  gap: 28px;
+  animation: marqueeMove 50s linear infinite;
+  flex-shrink: 0;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+.project-card {
+  flex-shrink: 0;
+  width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 32px;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.project-card:hover::before { opacity: 0.05; }
+.project-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(198,255,61,0.15);
+}
+.project-img {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.project-img svg { width: 80%; height: 80%; transition: transform 0.6s; }
+.project-card:hover .project-img svg { transform: scale(1.15) rotate(-5deg); }
+.project-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.project-name {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+.project-desc { color: var(--muted); font-size: 14px; }
+
+/* ===== STARTUPS ===== */
+.startups {
+  padding: 160px 48px;
+  border-top: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.startups::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+  opacity: 0.1;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: blob 12s ease-in-out infinite;
+}
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-80px, 60px) scale(1.2); }
+  66% { transform: translate(60px, -40px) scale(0.9); }
+}
+
+.startups-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.startups-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.stat {
+  background: var(--bg);
+  padding: 48px 40px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.stat:hover { background: var(--bg-2); }
+.stat::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stat:hover::after { width: 100%; }
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 88px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+}
+
+.startup-list { margin-top: 40px; list-style: none; }
+.startup-list li {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: none;
+  position: relative;
+}
+.startup-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.startup-list li:hover { padding-left: 16px; }
+.startup-list li:hover::before { width: 100%; }
+.startup-list li:hover .startup-arrow { color: var(--accent); transform: rotate(-45deg) scale(1.3); }
+.startup-list li:hover strong { color: var(--accent); }
+.startup-list span.num {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  width: 30px;
+}
+.startup-list strong {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 400;
+  flex: 1;
+  transition: color 0.3s;
+}
+.startup-arrow {
+  color: var(--muted);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 20px;
+}
+
+/* ===== TEAM ===== */
+.team {
+  padding: 160px 48px;
+  border-top: 1px solid var(--line);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+}
+.team-member {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: none;
+}
+.team-member:hover,
+.team-member.reveal.in:hover { transform: translateY(-12px); }
+.member-photo {
+  aspect-ratio: 3/4;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  transition: border-color 0.3s;
+}
+.team-member:hover .member-photo { border-color: var(--accent); }
+.member-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: grayscale(20%) contrast(1.05);
+}
+.team-member:hover .member-photo img {
+  transform: scale(1.08);
+  filter: grayscale(0%) contrast(1);
+}
+.member-photo svg { width: 100%; height: 100%; transition: transform 0.6s; }
+.team-member:hover .member-photo svg { transform: scale(1.1); }
+.member-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+.member-tag {
+  position: absolute;
+  top: 12px; left: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 4px 10px;
+  letter-spacing: 1px;
+  z-index: 2;
+  font-weight: 700;
+}
+.member-name {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  margin-bottom: 4px;
+  transition: color 0.3s;
+}
+.team-member:hover .member-name { color: var(--accent); }
+.member-role {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===== PROCESS ===== */
+.process {
+  padding: 160px 48px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-2);
+  position: relative;
+  overflow: hidden;
+}
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  position: relative;
+}
+.process-steps::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  left: 5%;
+  right: 5%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-3) 100%);
+  z-index: 0;
+}
+.step {
+  position: relative;
+  z-index: 2;
+  background: var(--bg-2);
+  padding-top: 16px;
+}
+.step-num {
+  width: 60px; height: 60px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  transition: all 0.4s;
+  position: relative;
+}
+.step-num::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.4s;
+}
+.step:hover .step-num { background: var(--accent); color: var(--on-accent); transform: scale(1.1); }
+.step:hover .step-num::before { opacity: 0.5; transform: scale(1.2); }
+.step-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  margin-bottom: 12px;
+  font-weight: 400;
+}
+.step-desc { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+/* ===== CONTACT ===== */
+.contact {
+  padding: 160px 48px 100px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.contact::before {
+  content: 'WORK\A WITH\A US';
+  white-space: pre;
+  position: absolute;
+  bottom: -80px;
+  right: -40px;
+  font-family: 'Fraunces', serif;
+  font-size: 320px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--surface);
+  line-height: 0.85;
+  pointer-events: none;
+  z-index: 0;
+  animation: contactDrift 20s ease-in-out infinite;
+}
+@keyframes contactDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-40px); }
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  position: relative;
+  z-index: 2;
+}
+
+.contact-info h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(40px, 6vw, 88px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 32px;
+}
+.contact-info h2 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.contact-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 48px;
+}
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: none;
+}
+.channel:hover { padding-left: 16px; }
+.channel:hover .channel-icon { background: var(--accent); color: var(--on-accent); transform: rotate(360deg); }
+.channel:hover .channel-value { color: var(--accent); }
+.channel-icon {
+  width: 48px; height: 48px;
+  border: 1px solid var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.channel-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+.channel-value {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+/* FORM */
+.contact-form {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  padding: 44px;
+  position: relative;
+  overflow: hidden;
+}
+.contact-form::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px;
+  width: 60px; height: 60px;
+  border-top: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
+}
+.contact-form::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 60px; height: 60px;
+  border-bottom: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+}
+.form-group { margin-bottom: 24px; }
+.form-label {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+.form-input, .form-textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  padding: 16px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  transition: all 0.3s;
+  cursor: none;
+}
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(198,255,61,0.1);
+}
+.form-textarea { resize: vertical; min-height: 130px; }
+
+.service-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  padding: 10px 16px;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  cursor: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+.pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s cubic-bezier(0.7, 0, 0.3, 1);
+  z-index: -1;
+}
+.pill:hover::before { transform: scaleY(1); }
+.pill:hover { color: var(--on-accent); border-color: var(--accent); }
+.pill.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.pill.active::before { transform: scaleY(1); }
+
+.submit-btn {
+  width: 100%;
+  padding: 20px;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.3s;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
+}
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-2);
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.submit-btn span { position: relative; z-index: 2; }
+.submit-btn:hover::before { transform: translateX(0); }
+.submit-btn:hover span { color: var(--ink); }
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 60px 48px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  position: relative;
+  z-index: 3;
+}
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+.footer-social { display:flex; gap: 32px; font-family:'Space Mono',monospace; font-size:13px; }
+.footer-social a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+  position: relative;
+}
+.footer-social a:hover { color: var(--accent); }
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===== REVEAL ON SCROLL ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  body { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none; }
+  .hero { grid-template-columns: 1fr; padding: 120px 24px 60px; }
+  .terminal { transform: none; animation: none; }
+  .services-grid { grid-template-columns: 1fr; }
+  .startups-layout { grid-template-columns: 1fr; gap: 40px; }
+  .team-grid { grid-template-columns: repeat(3, 1fr); }
+  .process-steps { grid-template-columns: 1fr; gap: 32px; }
+  .process-steps::before { display: none; }
+  .contact-layout { grid-template-columns: 1fr; }
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .services, .projects, .startups, .team, .process, .contact { padding: 80px 24px; }
+  .contact::before { font-size: 140px; }
+}
+
+@media (max-width: 600px) {
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions a { text-align: center; justify-content: center; }
+  .footer-top, .footer-bottom { flex-direction: column; gap: 20px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-count" id="loaderCount">00</div>
+  <div class="loader-bar"></div>
+  <div class="loader-text">YUKLANMOQDA</div>
+</div>
+
+<!-- CURSORS -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- SCROLL PROGRESS -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- BG -->
+<canvas id="bgCanvas"></canvas>
+<div class="bg-grid"></div>
+<div class="noise"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    FERGANA_SOFT
+  </div>
+  <ul class="nav-links">
+    <li><a href="#services" data-text="Xizmatlar"><span>Xizmatlar</span></a></li>
+    <li><a href="#projects" data-text="Loyihalar"><span>Loyihalar</span></a></li>
+    <li><a href="#team" data-text="Jamoa"><span>Jamoa</span></a></li>
+    <li><a href="#startups" data-text="Startaplar"><span>Startaplar</span></a></li>
+    <li><a href="#contact" data-text="Aloqa"><span>Aloqa</span></a></li>
+  </ul>
+  <div style="display:flex; align-items:center;">
+    <button class="theme-toggle" id="themeToggle" aria-label="Mavzu almashtirish" title="Mavzu almashtirish">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <a href="#contact" class="nav-cta">Loyiha boshlash →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-label">FARG'ONA · O'ZBEKISTON · 2026</div>
+    <h1 class="hero-title">
+      <span class="title-line"><span><span class="strike">Oddiy</span> kod emas,</span></span>
+      <span class="title-line"><span>biz <em>g'oyalarni</em></span></span>
+      <span class="title-line"><span>mahsulotga</span></span>
+      <span class="title-line"><span>aylantiramiz.</span></span>
+    </h1>
+    <p class="hero-sub">
+      Fergana Soft — bu raqamli mahsulotlar, mobil ilovalar va web platformalar yaratuvchi mustaqil studiya. Biz startaplar va kompaniyalar uchun ishonchli texnologik hamkormiz.
+    </p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">
+        <span>BOSHLAYMIZMI</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#projects" class="btn-secondary">Ishlarimiz</a>
+    </div>
+  </div>
+
+  <div class="terminal-wrap">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="term-dot r"></div>
+        <div class="term-dot y"></div>
+        <div class="term-dot g"></div>
+        <div class="term-title">~/fergana-soft/init.sh</div>
+      </div>
+      <div class="terminal-body" id="terminalBody">
+        <div class="term-line"><span class="term-comment"># Yangi loyiha boshlanmoqda...</span></div>
+        <div class="term-line"><span class="term-prompt">$</span> fergana init <span class="term-string">"sizning-loyihangiz"</span></div>
+        <div class="term-line term-comment">  ✓ Strategiya tahlili</div>
+        <div class="term-line term-comment">  ✓ UI/UX dizayn</div>
+        <div class="term-line term-comment">  ✓ Backend arxitektura</div>
+        <div class="term-line term-comment">  ✓ Mobil ilova (iOS / Android)</div>
+        <div class="term-line">&nbsp;</div>
+        <div class="term-line"><span class="term-prompt">$</span> deploy --production</div>
+        <div class="term-line"><span class="term-success">→ Loyiha 12 hafta ichida ishga tushdi</span></div>
+        <div class="term-line">&nbsp;</div>
+        <div class="term-line"><span class="term-prompt">$</span> <span class="cursor-blink"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE STRIP -->
+<div class="marquee-strip">
+  <div class="marquee-strip-content">
+    <span>FERGANA SOFT <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> WEB ★ MOBILE ★ MVP <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> STARTUP STUDIO <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> FARG'ONA · UZ <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span>FERGANA SOFT <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> WEB ★ MOBILE ★ MVP <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> STARTUP STUDIO <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> FARG'ONA · UZ <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="section-tag reveal">01 / XIZMATLAR</div>
+  <h2 class="section-title">
+    <span class="split-line"><span>Biz <em>nimani</em></span></span>
+    <span class="split-line"><span>yarata olamiz</span></span>
+  </h2>
+
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">001</div>
+      <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <h3 class="service-name">Web platformalar</h3>
+      <p class="service-desc">SaaS, e-commerce, ichki tizimlar. Tez, xavfsiz va kengaytirib bo'ladigan arxitektura bilan.</p>
+      <div class="service-tags">
+        <span class="service-tag">Next.js</span>
+        <span class="service-tag">React</span>
+        <span class="service-tag">Node.js</span>
+        <span class="service-tag">PostgreSQL</span>
+      </div>
+      <div class="service-arrow">↗</div>
+    </div>
+
+    <div class="service-card reveal">
+      <div class="service-num">002</div>
+      <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      <h3 class="service-name">Mobil ilovalar</h3>
+      <p class="service-desc">iOS va Android uchun native va cross-platform yechimlar. Foydalanuvchiga moslashgan tajriba.</p>
+      <div class="service-tags">
+        <span class="service-tag">Swift</span>
+        <span class="service-tag">Kotlin</span>
+        <span class="service-tag">Flutter</span>
+        <span class="service-tag">React Native</span>
+      </div>
+      <div class="service-arrow">↗</div>
+    </div>
+
+    <div class="service-card reveal">
+      <div class="service-num">003</div>
+      <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <h3 class="service-name">Startap MVP</h3>
+      <p class="service-desc">G'oyangizni 6-12 hafta ichida bozorga olib chiqamiz. Idea → Prototype → MVP → Scale.</p>
+      <div class="service-tags">
+        <span class="service-tag">MVP</span>
+        <span class="service-tag">Discovery</span>
+        <span class="service-tag">UX Research</span>
+        <span class="service-tag">Launch</span>
+      </div>
+      <div class="service-arrow">↗</div>
+    </div>
+
+    <div class="service-card reveal">
+      <div class="service-num">004</div>
+      <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <h3 class="service-name">UI/UX Dizayn</h3>
+      <p class="service-desc">Mahsulot dizayni, brending, dizayn-tizimi. Foydalanuvchi sevadigan interfeyslar.</p>
+      <div class="service-tags">
+        <span class="service-tag">Figma</span>
+        <span class="service-tag">Design System</span>
+        <span class="service-tag">Prototype</span>
+        <span class="service-tag">Motion</span>
+      </div>
+      <div class="service-arrow">↗</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+  <div class="section-tag reveal">02 / LOYIHALAR</div>
+  <h2 class="section-title">
+    <span class="split-line"><span>Biz <em>yaratgan</em></span></span>
+    <span class="split-line"><span>ishlar</span></span>
+  </h2>
+
+  <div class="projects-marquee">
+    <div class="marquee-track">
+      <!-- 1. OSTONA -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 80 L100 28 L170 80 L170 92 L30 92 Z" fill="var(--accent)" opacity="0.85"/>
+            <rect x="88" y="58" width="24" height="34" fill="var(--bg-2)"/>
+            <rect x="48" y="60" width="22" height="18" fill="var(--bg-2)"/>
+            <rect x="130" y="60" width="22" height="18" fill="var(--bg-2)"/>
+            <circle cx="160" cy="28" r="9" fill="none" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <path d="M160 36 L160 52 M154 52 L166 52" stroke="var(--accent-2)" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>KO'CHMAS MULK · 2024</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">Ostona</h3>
+        <p class="project-desc">Uy oldi-sotti, onlayn shartnomalar va to'lovlar bilan integratsiya.</p>
+      </div>
+
+      <!-- 2. FOODIX -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="100" cy="44" rx="44" ry="22" fill="var(--accent-2)"/>
+            <rect x="56" y="44" width="88" height="32" fill="var(--accent-2)"/>
+            <path d="M60 56 Q100 50 140 56" stroke="var(--bg-2)" stroke-width="2.5" fill="none"/>
+            <circle cx="72" cy="38" r="3" fill="var(--bg-2)"/>
+            <circle cx="100" cy="32" r="3" fill="var(--bg-2)"/>
+            <circle cx="128" cy="38" r="3" fill="var(--bg-2)"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>FOODTECH CRM · 2025</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">Foodix</h3>
+        <p class="project-desc">Fast food va restoranlar uchun buyurtma, oshxona va analitika CRM tizimi.</p>
+      </div>
+
+      <!-- 3. KELAJAK DASTURCHILARI -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="60,28 28,54 60,80" stroke="var(--accent-3)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="140,28 172,54 140,80" stroke="var(--accent-3)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="115" y1="22" x2="85" y2="86" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>EDTECH · 2024</span><span>WEB + APP</span></div>
+        <h3 class="project-name">Kelajak dasturchilari</h3>
+        <p class="project-desc">Yosh dasturchilarni tayyorlash uchun onlayn ta'lim platformasi.</p>
+      </div>
+
+      <!-- 4. UZTEX -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="var(--accent)" stroke-width="4" stroke-linecap="round">
+              <line x1="55" y1="20" x2="55" y2="85"/>
+              <line x1="85" y1="20" x2="85" y2="85"/>
+              <line x1="115" y1="20" x2="115" y2="85"/>
+              <line x1="145" y1="20" x2="145" y2="85"/>
+            </g>
+            <g stroke="var(--accent-2)" stroke-width="4" stroke-linecap="round">
+              <line x1="35" y1="38" x2="165" y2="38"/>
+              <line x1="35" y1="67" x2="165" y2="67"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta"><span>B2B TEXTILE · 2025</span><span>WEB</span></div>
+        <h3 class="project-name">Uztex</h3>
+        <p class="project-desc">To'qimachilik korxonasi uchun ishlab chiqarish va savdo boshqaruv platformasi.</p>
+      </div>
+
+      <!-- 5. U-LOGISTIC -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="32" y="44" width="74" height="36" fill="var(--accent)" rx="2"/>
+            <path d="M106 52 L142 52 L160 64 L160 80 L106 80 Z" fill="var(--accent)"/>
+            <circle cx="60" cy="84" r="8" fill="var(--bg-2)" stroke="var(--accent)" stroke-width="2"/>
+            <circle cx="138" cy="84" r="8" fill="var(--bg-2)" stroke="var(--accent)" stroke-width="2"/>
+            <path d="M30 28 L60 28 L55 22 M30 28 L55 34" stroke="var(--accent-3)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>LOGISTIKA · 2025</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">U-Logistic</h3>
+        <p class="project-desc">Yuk tashish, transport va omborlarni boshqarish tizimi.</p>
+      </div>
+
+      <!-- 6. ZAKO -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40 24 L160 24 L40 78 L160 78" stroke="var(--accent-2)" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="160" cy="24" r="6" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>E-COMMERCE · 2024</span><span>WEB</span></div>
+        <h3 class="project-name">ZAKO</h3>
+        <p class="project-desc">Onlayn savdo va xizmatlar platformasi.</p>
+      </div>
+
+      <!-- 7. MASTERSUZ -->
+      <div class="project-card">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="var(--accent-3)" stroke-width="4" stroke-linecap="round" fill="none">
+              <line x1="50" y1="84" x2="120" y2="22"/>
+              <rect x="38" y="76" width="20" height="14" rx="2" fill="var(--accent-3)" transform="rotate(-40 48 84)"/>
+            </g>
+            <g stroke="var(--accent)" stroke-width="4" stroke-linecap="round" fill="none">
+              <line x1="150" y1="84" x2="80" y2="22"/>
+              <circle cx="155" cy="82" r="9" fill="var(--accent)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta"><span>MARKETPLEYS · 2025</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">MastersUZ</h3>
+        <p class="project-desc">Ustalar va xizmat ko'rsatuvchilarni mijoz bilan bog'lovchi platforma.</p>
+      </div>
+
+      <!-- ====== DUPLICATE FOR SEAMLESS MARQUEE ====== -->
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 80 L100 28 L170 80 L170 92 L30 92 Z" fill="var(--accent)" opacity="0.85"/>
+            <rect x="88" y="58" width="24" height="34" fill="var(--bg-2)"/>
+            <rect x="48" y="60" width="22" height="18" fill="var(--bg-2)"/>
+            <rect x="130" y="60" width="22" height="18" fill="var(--bg-2)"/>
+            <circle cx="160" cy="28" r="9" fill="none" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <path d="M160 36 L160 52 M154 52 L166 52" stroke="var(--accent-2)" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>KO'CHMAS MULK · 2024</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">Ostona</h3>
+        <p class="project-desc">Uy oldi-sotti, onlayn shartnomalar va to'lovlar bilan integratsiya.</p>
+      </div>
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="100" cy="44" rx="44" ry="22" fill="var(--accent-2)"/>
+            <rect x="56" y="44" width="88" height="32" fill="var(--accent-2)"/>
+            <path d="M60 56 Q100 50 140 56" stroke="var(--bg-2)" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>FOODTECH CRM · 2025</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">Foodix</h3>
+        <p class="project-desc">Fast food va restoranlar uchun buyurtma, oshxona va analitika CRM tizimi.</p>
+      </div>
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="60,28 28,54 60,80" stroke="var(--accent-3)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="140,28 172,54 140,80" stroke="var(--accent-3)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="115" y1="22" x2="85" y2="86" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>EDTECH · 2024</span><span>WEB + APP</span></div>
+        <h3 class="project-name">Kelajak dasturchilari</h3>
+        <p class="project-desc">Yosh dasturchilarni tayyorlash uchun onlayn ta'lim platformasi.</p>
+      </div>
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="var(--accent)" stroke-width="4" stroke-linecap="round">
+              <line x1="55" y1="20" x2="55" y2="85"/>
+              <line x1="85" y1="20" x2="85" y2="85"/>
+              <line x1="115" y1="20" x2="115" y2="85"/>
+              <line x1="145" y1="20" x2="145" y2="85"/>
+            </g>
+            <g stroke="var(--accent-2)" stroke-width="4" stroke-linecap="round">
+              <line x1="35" y1="38" x2="165" y2="38"/>
+              <line x1="35" y1="67" x2="165" y2="67"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta"><span>B2B TEXTILE · 2025</span><span>WEB</span></div>
+        <h3 class="project-name">Uztex</h3>
+        <p class="project-desc">To'qimachilik korxonasi uchun ishlab chiqarish va savdo boshqaruv platformasi.</p>
+      </div>
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="32" y="44" width="74" height="36" fill="var(--accent)" rx="2"/>
+            <path d="M106 52 L142 52 L160 64 L160 80 L106 80 Z" fill="var(--accent)"/>
+            <circle cx="60" cy="84" r="8" fill="var(--bg-2)" stroke="var(--accent)" stroke-width="2"/>
+            <circle cx="138" cy="84" r="8" fill="var(--bg-2)" stroke="var(--accent)" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>LOGISTIKA · 2025</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">U-Logistic</h3>
+        <p class="project-desc">Yuk tashish, transport va omborlarni boshqarish tizimi.</p>
+      </div>
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40 24 L160 24 L40 78 L160 78" stroke="var(--accent-2)" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="160" cy="24" r="6" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <div class="project-meta"><span>E-COMMERCE · 2024</span><span>WEB</span></div>
+        <h3 class="project-name">ZAKO</h3>
+        <p class="project-desc">Onlayn savdo va xizmatlar platformasi.</p>
+      </div>
+      <div class="project-card" aria-hidden="true">
+        <div class="project-img">
+          <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="var(--accent-3)" stroke-width="4" stroke-linecap="round" fill="none">
+              <line x1="50" y1="84" x2="120" y2="22"/>
+            </g>
+            <g stroke="var(--accent)" stroke-width="4" stroke-linecap="round" fill="none">
+              <line x1="150" y1="84" x2="80" y2="22"/>
+              <circle cx="155" cy="82" r="9" fill="var(--accent)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta"><span>MARKETPLEYS · 2025</span><span>WEB + MOBILE</span></div>
+        <h3 class="project-name">MastersUZ</h3>
+        <p class="project-desc">Ustalar va xizmat ko'rsatuvchilarni mijoz bilan bog'lovchi platforma.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STARTUPS -->
+<section class="startups" id="startups">
+  <div class="startups-layout">
+    <div>
+      <div class="section-tag reveal">03 / STARTAPLAR</div>
+      <h2 class="section-title" style="margin-bottom: 32px;">
+        <span class="split-line"><span>Startaplar uchun</span></span>
+        <span class="split-line"><span><em>texnologik hamkor</em></span></span>
+      </h2>
+      <p style="color: var(--muted); font-size: 17px; max-width: 480px; margin-bottom: 32px;" class="reveal">
+        Biz g'oya bosqichidan boshlab seriya A gacha bo'lgan startaplar bilan ishlaymiz. MVP, fundraising deck, ulush asosida hamkorlik — har bir holatga moslashamiz.
+      </p>
+      <ul class="startup-list">
+        <li class="reveal"><span class="num">01</span><strong>MVP 6 hafta ichida</strong><span class="startup-arrow">→</span></li>
+        <li class="reveal"><span class="num">02</span><strong>Investor uchun pitch deck</strong><span class="startup-arrow">→</span></li>
+        <li class="reveal"><span class="num">03</span><strong>Ulush evaziga hamkorlik</strong><span class="startup-arrow">→</span></li>
+        <li class="reveal"><span class="num">04</span><strong>Mentorlik va texnik direksiya</strong><span class="startup-arrow">→</span></li>
+        <li class="reveal"><span class="num">05</span><strong>Scale-up va arxitektura</strong><span class="startup-arrow">→</span></li>
+      </ul>
+    </div>
+
+    <div class="startups-stats reveal">
+      <div class="stat"><div class="stat-num" data-count="40" data-suffix="+">0</div><div class="stat-label">YAKUNLANGAN LOYIHALAR</div></div>
+      <div class="stat"><div class="stat-num" data-count="12">0</div><div class="stat-label">FAOL STARTAP</div></div>
+      <div class="stat"><div class="stat-num" data-count="18">0</div><div class="stat-label">JAMOA A'ZOLARI</div></div>
+      <div class="stat"><div class="stat-num" data-count="5">0</div><div class="stat-label">YILLIK TAJRIBA</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="section-tag reveal">05 / JAMOA</div>
+  <h2 class="section-title">
+    <span class="split-line"><span>Bu loyihaning <em>ortida</em></span></span>
+    <span class="split-line"><span>turgan odamlar</span></span>
+  </h2>
+
+  <div class="team-grid">
+    <div class="team-member reveal">
+      <div class="member-photo">
+        <span class="member-tag" style="background: var(--accent-3); color: #fff;">LEAD</span>
+        <img src="public/Muratov Temurbek-Full stack 7+.jpg" alt="Muratov Temurbek" loading="lazy">
+      </div>
+      <h3 class="member-name">Muratov Temurbek</h3>
+      <p class="member-role">Full stack dasturchi · 7+ yil</p>
+    </div>
+
+    <div class="team-member reveal">
+      <div class="member-photo">
+        <span class="member-tag">DEV</span>
+        <img src="public/Abduxoshimjonov Ahmadjon-Full stack 5+.jpg" alt="Abduxoshimjonov Ahmadjon" loading="lazy">
+      </div>
+      <h3 class="member-name">Abduxoshimjonov Ahmadjon</h3>
+      <p class="member-role">Full stack dasturchi · 5+ yil</p>
+    </div>
+
+    <div class="team-member reveal">
+      <div class="member-photo">
+        <span class="member-tag" style="background: var(--accent-2); color: #fff;">UX/UI</span>
+        <img src="public/Hakimov Muhammadqodir-UXUI dizayner.jpg" alt="Hakimov Muhammadqodir" loading="lazy">
+      </div>
+      <h3 class="member-name">Hakimov Muhammadqodir</h3>
+      <p class="member-role">UX/UI dizayner</p>
+    </div>
+
+    <div class="team-member reveal">
+      <div class="member-photo">
+        <span class="member-tag">PM</span>
+        <img src="public/Kudratullayev Ulug'bek-PM 2+.jpg" alt="Kudratullayev Ulug'bek" loading="lazy">
+      </div>
+      <h3 class="member-name">Kudratullayev Ulug'bek</h3>
+      <p class="member-role">Loyiha menejeri · 2+ yil</p>
+    </div>
+
+    <div class="team-member reveal">
+      <div class="member-photo">
+        <span class="member-tag" style="background: var(--accent-3); color: #fff;">ML</span>
+        <img src="public/Tojidinov Azizbek-ML.jpg" alt="Tojidinov Azizbek" loading="lazy">
+      </div>
+      <h3 class="member-name">Tojidinov Azizbek</h3>
+      <p class="member-role">ML muhandis</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process">
+  <div class="section-tag reveal">05 / JARAYON</div>
+  <h2 class="section-title">
+    <span class="split-line"><span>G'oyadan <em>ishga tushishgacha</em></span></span>
+  </h2>
+
+  <div class="process-steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <h3 class="step-title">Discovery</h3>
+      <p class="step-desc">Sizning g'oyangiz, bozor va foydalanuvchini tahlil qilamiz. Strategiya tuzamiz.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <h3 class="step-title">Dizayn</h3>
+      <p class="step-desc">UI/UX prototip va dizayn tizimini yaratamiz. Foydalanuvchi sinovi.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <h3 class="step-title">Ishlab chiqish</h3>
+      <p class="step-desc">2 haftalik sprintlarda, doimiy demolar bilan. Toza kod va testlar.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <h3 class="step-title">Launch & Scale</h3>
+      <p class="step-desc">Deployment, monitoring va keyingi bosqichlar uchun yo'l xaritasi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-layout">
+    <div class="contact-info">
+      <div class="section-tag reveal">06 / ALOQA</div>
+      <h2 class="reveal">Loyihangiz<br>haqida <em>gaplashaylik</em></h2>
+      <p class="reveal" style="color: var(--muted); font-size: 17px; max-width: 440px;">
+        Formani to'ldiring yoki to'g'ridan-to'g'ri yozing. 24 soat ichida javob beramiz.
+      </p>
+
+      <div class="contact-channels">
+        <a href="mailto:hello@ferganasoft.uz" class="channel reveal">
+          <div class="channel-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="channel-label">EMAIL</div>
+            <div class="channel-value">ferganasoft.uz@gmail.com</div>
+          </div>
+        </a>
+
+        <a href="tel:+998900000000" class="channel reveal">
+          <div class="channel-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="channel-label">TELEFON</div>
+            <div class="channel-value">+998 94 498 45 48</div>
+          </div>
+        </a>
+
+        <a href="https://t.me/ferganasoftuz" class="channel reveal">
+          <div class="channel-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </div>
+          <div>
+            <div class="channel-label">TELEGRAM</div>
+            <div class="channel-value">@ferganasoft</div>
+          </div>
+        </a>
+
+        <a href="#" class="channel reveal">
+          <div class="channel-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="channel-label">MANZIL</div>
+            <div class="channel-value">Farg'ona shahri, Neftchilar 33</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="contact-form reveal">
+      <div class="form-group">
+        <label class="form-label">ISMINGIZ</label>
+        <input type="text" class="form-input" placeholder="Sardor Tursunov">
+      </div>
+      <div class="form-group">
+        <label class="form-label">EMAIL YOKI TELEGRAM</label>
+        <input type="text" class="form-input" placeholder="sardor@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">QANDAY XIZMAT KERAK?</label>
+        <div class="service-pills">
+          <div class="pill" data-pill>Web sayt</div>
+          <div class="pill" data-pill>Mobil ilova</div>
+          <div class="pill" data-pill>MVP</div>
+          <div class="pill" data-pill>Dizayn</div>
+          <div class="pill" data-pill>Boshqa</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">LOYIHA HAQIDA QISQACHA</label>
+        <textarea class="form-textarea" placeholder="G'oyangizni, muddatingizni va byudjetingizni yozing..."></textarea>
+      </div>
+      <button class="submit-btn" id="submitBtn"><span>SO'ROVNI YUBORISH →</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      FERGANA_SOFT
+    </div>
+    <div class="footer-social">
+      <a href="#">Telegram</a>
+      <a href="#">Instagram</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 FERGANA SOFT · BARCHA HUQUQLAR HIMOYALANGAN</span>
+    <span>MADE IN FARG'ONA, UZBEKISTAN 🇺🇿</span>
+  </div>
+</footer>
+
+<script>
+/* ===== LOADER ===== */
+const loader = document.getElementById('loader');
+const loaderCount = document.getElementById('loaderCount');
+let count = 0;
+const loaderInterval = setInterval(() => {
+  count += Math.floor(Math.random() * 8) + 2;
+  if (count >= 100) {
+    count = 100;
+    clearInterval(loaderInterval);
+    setTimeout(() => loader.classList.add('gone'), 300);
+  }
+  loaderCount.textContent = String(count).padStart(2, '0');
+}, 80);
+
+/* ===== CUSTOM CURSOR (smooth follow) ===== */
+const cursorDot = document.getElementById('cursorDot');
+const cursorRing = document.getElementById('cursorRing');
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+let ringX = mouseX, ringY = mouseY;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+});
+
+function animateCursor() {
+  ringX += (mouseX - ringX) * 0.18;
+  ringY += (mouseY - ringY) * 0.18;
+  cursorRing.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('a, button, .pill, .service-card, .startup-list li, .channel, input, textarea, .team-member, .project-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursorRing.classList.add('hover');
+    cursorDot.classList.add('hover');
+  });
+  el.addEventListener('mouseleave', () => {
+    cursorRing.classList.remove('hover');
+    cursorDot.classList.remove('hover');
+  });
+});
+
+if ('ontouchstart' in window) {
+  cursorDot.style.display = 'none';
+  cursorRing.style.display = 'none';
+}
+
+/* ===== BG CANVAS - Floating particles ===== */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let particleRgb = '198, 255, 61';
+function refreshParticleColor() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--particle-rgb').trim();
+  if (v) particleRgb = v;
+}
+refreshParticleColor();
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.3;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.5 + 0.1;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    // Attract to mouse a little
+    const dx = mouseX - this.x;
+    const dy = mouseY - this.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 150) {
+      this.x -= (dx / dist) * 0.5;
+      this.y -= (dy / dist) * 0.5;
+    }
+  }
+  draw() {
+    ctx.fillStyle = `rgba(${particleRgb}, ${this.opacity})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particles = [];
+  const count = Math.floor((canvas.width * canvas.height) / 18000);
+  for (let i = 0; i < count; i++) particles.push(new Particle());
+}
+initParticles();
+window.addEventListener('resize', initParticles);
+
+function drawConnections() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 120) {
+        ctx.strokeStyle = `rgba(${particleRgb}, ${(1 - dist/120) * 0.15})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animateBg() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawConnections();
+  requestAnimationFrame(animateBg);
+}
+animateBg();
+
+/* ===== SCROLL PROGRESS ===== */
+const scrollProgress = document.getElementById('scrollProgress');
+window.addEventListener('scroll', () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / total) * 100;
+  scrollProgress.style.width = pct + '%';
+});
+
+/* ===== REVEAL ON SCROLL ===== */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 0.1 + 's';
+  observer.observe(el);
+});
+
+/* SPLIT LINE REVEAL */
+const splitObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const lines = entry.target.querySelectorAll('.split-line');
+      lines.forEach((line, i) => {
+        setTimeout(() => line.classList.add('in'), i * 120);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.section-title, .contact-info h2').forEach(el => splitObserver.observe(el));
+
+/* COUNTER ANIMATION */
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.done) {
+      entry.target.dataset.done = '1';
+      const target = parseInt(entry.target.dataset.count);
+      const suffix = entry.target.dataset.suffix || '';
+      const duration = 1800;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const p = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        entry.target.textContent = Math.floor(eased * target) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+/* TERMINAL TYPED REVEAL */
+const termObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.played) {
+      entry.target.dataset.played = '1';
+      const lines = entry.target.querySelectorAll('.term-line');
+      lines.forEach((line, i) => {
+        setTimeout(() => line.classList.add('show'), i * 220);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+const termBody = document.getElementById('terminalBody');
+if (termBody) termObserver.observe(termBody);
+
+/* SERVICE CARD MOUSE GRADIENT */
+document.querySelectorAll('.service-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty('--mx', x + '%');
+    card.style.setProperty('--my', y + '%');
+  });
+});
+
+/* PARALLAX HERO (subtle) */
+const heroTitle = document.querySelector('.hero-title');
+const terminalWrap = document.querySelector('.terminal-wrap');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < window.innerHeight) {
+    if (heroTitle) heroTitle.style.transform = `translateY(${y * 0.15}px)`;
+    if (terminalWrap) terminalWrap.style.transform = `translateY(${y * 0.08}px)`;
+  }
+});
+
+/* PILLS TOGGLE */
+document.querySelectorAll('[data-pill]').forEach(pill => {
+  pill.addEventListener('click', () => pill.classList.toggle('active'));
+});
+
+/* SUBMIT FEEDBACK */
+document.getElementById('submitBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const btn = e.target.closest('button');
+  const span = btn.querySelector('span');
+  const original = span.textContent;
+  span.textContent = '✓ YUBORILDI! TEZ ORADA ALOQAGA CHIQAMIZ';
+  btn.style.background = 'var(--accent-3)';
+  setTimeout(() => {
+    span.textContent = original;
+    btn.style.background = '';
+  }, 3000);
+});
+
+/* SMOOTH SCROLL */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+
+/* MAGNETIC BUTTONS */
+document.querySelectorAll('.btn-primary, .nav-cta, .submit-btn').forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+  });
+});
+
+/* ===== THEME TOGGLE ===== */
+const themeToggle = document.getElementById('themeToggle');
+const THEME_KEY = 'fs-theme';
+
+function applyTheme(theme, animate) {
+  if (animate) document.body.classList.add('theming-transition');
+  document.documentElement.setAttribute('data-theme', theme);
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+  refreshParticleColor();
+  if (animate) setTimeout(() => document.body.classList.remove('theming-transition'), 450);
+}
+
+themeToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light', true);
+});
+</script>
+
+</body>
+</html>

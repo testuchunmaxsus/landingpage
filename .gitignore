@@ -1,0 +1,13 @@
+# Diagnostic / test artifacts
+_check.py
+_screens/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
